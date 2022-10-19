@@ -1,0 +1,5 @@
+<<<<<<< HEAD
+{"grid_search": false, "unsupervised_dim": [2], "label_dim": [5], "contrained_dim": [2], "alpha": [1000], "beta": [5], "theta": [200], "ks": [15], "flag": ["ppp"], "image_size": [128, 128, 2], "hdf5_file": "./data/part_data.hdf5", "batch_size": [256], "epoch": [50], "image_name": ["images_30", "images_36", "images_46", "images_57"], "label_name": ["labels_30", "labels_36", "labels_46", "labels_57"]}
+=======
+{"grid_search": false, "unsupervised_dim": [2], "label_dim": [5], "contrained_dim": [2], "alpha": [1000], "beta": [5], "theta": [200], "ks": [15], "flag": ["ppp"], "image_size": [128, 128, 2], "hdf5_file": "./data/data_nv30364657.hdf5", "batch_size": [256], "epoch": [50], "image_name": ["images_30", "images_36", "images_46", "images_57"], "label_name": ["labels_30", "labels_36", "labels_46", "labels_57"]}
+>>>>>>> 9c6227c4e81d0114c9f88f0a4300c27bfefe8fe7
