@@ -18,6 +18,7 @@ from tensorflow.keras.callbacks import ReduceLROnPlateau, EarlyStopping, Callbac
 # set_session(tf.Session(config=config))
 from sklearn.utils import shuffle
 import numpy as np
+import json
 gpus = tf.config.list_physical_devices('GPU')
 def train():
     #####read parameter file########
@@ -64,12 +65,11 @@ def train():
     #####latent partation####
     [latent_output,label_output],[csd_loss,sup_label_loss,kl_loss_sup,mi_loss, total_corr_loss, dim_wise_kl_loss]=model.get_latent(sdim=sdim, udim=udim,inputshape=K.shape(input0)[0], ks=ks, flag=flag, theta=theta,alpha=alpha,beta=beta)([inputlabel,A2, B, C, z_log_var_A, z_log_var_B])
     #####image decoder####
-    out=model.Decoder(hidden_dim=hid.shape[1],img_z)(latent_output)
+    out=model.Decoder(hidden_dim=hid.shape[1],img_z=img_z)(latent_output)
     [out, _], frame_mse_loss = loss.MSE_UNSUP()([out, input0])
 
     allmodel = Model(inputs=[input0, inputlabel], outputs=[out,label_output])
-
-#     allmodel.summary() ###check the momdel structure########
+    #     allmodel.summary() ###check the momdel structure########
     optimizer = tf.keras.optimizers.Adam(learning_rate=0.0001, clipvalue=1.0)
     ######add corresponding loss metric#####
     allmodel.add_metric(csd_loss, name="csd_loss",aggregation='mean')
@@ -81,19 +81,22 @@ def train():
     allmodel.add_metric(frame_mse_loss, name="frame_mse_loss",aggregation='mean')
 
     allmodel.compile(optimizer=optimizer)
-    #######if loss='nan' change the ranodm seed or lower the batch size or lower the value of theta or learning rate######
+    
+
     callbacks=[LearningRateScheduler(lambda epoch: 0.001 * 0.85 ** (epoch // 5))]
     term=tf.keras.callbacks.TerminateOnNaN()
+    
 
-
-    history1 =allmodel.fit( data_generator.DataLoader(hdf5file=hdf5_file,image_name, label_name,batch_size=batch_size, if_train=True),validation_data=data_generator.DataLoader(hdf5_file, image_name, label_name,batch_size, if_train=False),
-                           batch_size=batch_size, epochs=epoch,validation_steps=np.ceil(length/batch_size-1),
+    history1 =allmodel.fit( data_generator.DataGenerator(hdf5file=hdf5_file,image_name=image_name, label_name=label_name,batch_size=batch_size, if_train=True),validation_data=data_generator.DataGenerator(hdf5file=hdf5_file, image_name=image_name, label_name=label_name,batch_size=batch_size, if_train=False),
+                            epochs=epoch_num,validation_steps=np.ceil(length/batch_size-1),
                            verbose=1, steps_per_epoch=np.ceil(length/batch_size-1),
                            callbacks=[term,callbacks])
+
 
 
 # Press the green button in the gutter to run the script.
 if __name__ == '__main__':
     train()
 
+    
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/

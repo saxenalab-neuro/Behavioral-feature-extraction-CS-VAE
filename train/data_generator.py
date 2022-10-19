@@ -7,7 +7,7 @@ import random
 from tensorflow.keras.utils import Sequence
 
 class DataGenerator(Sequence):
-    def __init__(self,hdf5file='h.hdf5',image_name, label_name,batch_size=256, if_train=True, **kwargs):
+    def __init__(self,hdf5file='h.hdf5',image_name= "images_36", label_name= "labels_36",batch_size=256, if_train=True, **kwargs):
         self.image_name = image_name
         self.label_name = label_name
         self.a=h5py.File(hdf5file, 'r')
@@ -66,96 +66,97 @@ class DataGenerator(Sequence):
         return idx
 
     def __len__(self):
-        return ceil(len(self._get_shuffle()) / self.batch_size)
+        return int(len(self._get_shuffle()) / self.batch_size)
 
     def __getitem__(self, idx):
-        if self.if_train:
-            end = min(self._get_shuffle().shape[0], (idx + 1)*batch_size)
-            A=self._get_shuffle()[idx*batch_size:end]
+#         if self.if_train:
+        end = min(len(self._get_shuffle()), (idx + 1)*self.batch_size)
+        A=self._get_shuffle()[idx*self.batch_size:end]
 
-        
-            X = []
-            Y = []
-            for b in range(self.batch_size):
 
-                alll = A[idx*batch_size+b]
-                if alll[0] == 0:
-                    imn = self.image_name[0]
-                    lbn = self.label_name[0]
+        X = []
+        Y = []
+        for b in range(self.batch_size):
 
-                elif alll[0] == 1:
-                    imn = self.image_name[1]
-                    lbn = self.label_name[1]
-                elif alll[0] == 2:
-                    imn = self.image_name[2]
-                    lbn = self.label_name[2]
-                else:
-                    imn = self.image_name[3]
-                    lbn = self.label_name[3]
+            alll = A[b]
+            if alll[0] == 0:
+                imn = self.image_name[0]
+                lbn = self.label_name[0]
 
-                try:
-                    x = (np.array(self.a[imn][alll[1]][alll[2]]) / 255).T  # read dataset on the fly
-                    x = np.rollaxis(x, 1, 0)
-                    y = np.array(self.a[lbn][alll[1]][alll[2]])  # read dataset on the fly
-                    if np.sum(x) == 0 or np.sum(x) == np.inf or np.sum(x) == -np.inf or np.sum(y) == 0 or np.sum(y) == np.inf or np.sum(y) == -np.inf:
-                        x = (np.array(self.a[imn][self.trail[0]][1]) / 255).T  # read dataset on the fly
-                        x = np.rollaxis(x, 1, 0)
-                        y = np.array(self.a[lbn][self.trail[0]][1])  # read dataset on the fly
-                except:
+            elif alll[0] == 1:
+                imn = self.image_name[1]
+                lbn = self.label_name[1]
+            elif alll[0] == 2:
+                imn = self.image_name[2]
+                lbn = self.label_name[2]
+            else:
+                imn = self.image_name[3]
+                lbn = self.label_name[3]
+
+            try:
+                x = (np.array(self.a[imn][alll[1]][alll[2]]) / 255).T  # read dataset on the fly
+                x = np.rollaxis(x, 1, 0)
+                y = np.array(self.a[lbn][alll[1]][alll[2]])  # read dataset on the fly
+                if np.sum(x) == 0 or np.sum(x) == np.inf or np.sum(x) == -np.inf or np.sum(y) == 0 or np.sum(y) == np.inf or np.sum(y) == -np.inf:
                     x = (np.array(self.a[imn][self.trail[0]][1]) / 255).T  # read dataset on the fly
                     x = np.rollaxis(x, 1, 0)
                     y = np.array(self.a[lbn][self.trail[0]][1])  # read dataset on the fly
+            except:
+                x = (np.array(self.a[imn][self.trail[0]][1]) / 255).T  # read dataset on the fly
+                x = np.rollaxis(x, 1, 0)
+                y = np.array(self.a[lbn][self.trail[0]][1])  # read dataset on the fly
 
-                X.append(x)
-                Y.append(y)
-                i += 1
+            X.append(x)
+            Y.append(y)
+#                 i += 1
 
-            X = np.asarray(X)
-            Y = np.asarray(Y)
-            return [X, Y], [X, Y]
-        else:
-            VI=random.shuffle(self._get_shuffle())
+        X = np.asarray(X)
+        Y = np.asarray(Y)
+        yield [X, Y], [X, Y]
+        
+#         else:
+#             VI=random.shuffle(self._get_shuffle())
             
-            end = min(VI.shape[0], (idx + 1)*batch_size)
-            A=VI[idx*batch_size:end]
+#             end = min(len(VI), (idx + 1)*self.batch_size)
+#             A=VI[idx*self.batch_size:end]
 
         
-            X = []
-            Y = []
-            for b in range(self.batch_size):
+#             X = []
+#             Y = []
+#             for b in range(self.batch_size):
 
-                alll = A[idx*batch_size+b]
-                if alll[0] == 0:
-                    imn = self.image_name[0]
-                    lbn = self.label_name[0]
+#                 alll = A[b]
+#                 if alll[0] == 0:
+#                     imn = self.image_name[0]
+#                     lbn = self.label_name[0]
 
-                elif alll[0] == 1:
-                    imn = self.image_name[1]
-                    lbn = self.label_name[1]
-                elif alll[0] == 2:
-                    imn = self.image_name[2]
-                    lbn = self.label_name[2]
-                else:
-                    imn = self.image_name[3]
-                    lbn = self.label_name[3]
+#                 elif alll[0] == 1:
+#                     imn = self.image_name[1]
+#                     lbn = self.label_name[1]
+#                 elif alll[0] == 2:
+#                     imn = self.image_name[2]
+#                     lbn = self.label_name[2]
+#                 else:
+#                     imn = self.image_name[3]
+#                     lbn = self.label_name[3]
 
-                try:
-                    x = (np.array(self.a[imn][alll[1]][alll[2]]) / 255).T  # read dataset on the fly
-                    x = np.rollaxis(x, 1, 0)
-                    y = np.array(self.a[lbn][alll[1]][alll[2]])  # read dataset on the fly
-                    if np.sum(x) == 0 or np.sum(x) == np.inf or np.sum(x) == -np.inf or np.sum(y) == 0 or np.sum(y) == np.inf or np.sum(y) == -np.inf:
-                        x = (np.array(self.a[imn][self.trail[0]][1]) / 255).T  # read dataset on the fly
-                        x = np.rollaxis(x, 1, 0)
-                        y = np.array(self.a[lbn][self.trail[0]][1])  # read dataset on the fly
-                except:
-                    x = (np.array(self.a[imn][self.trail[0]][1]) / 255).T  # read dataset on the fly
-                    x = np.rollaxis(x, 1, 0)
-                    y = np.array(self.a[lbn][self.trail[0]][1])  # read dataset on the fly
+#                 try:
+#                     x = (np.array(self.a[imn][alll[1]][alll[2]]) / 255).T  # read dataset on the fly
+#                     x = np.rollaxis(x, 1, 0)
+#                     y = np.array(self.a[lbn][alll[1]][alll[2]])  # read dataset on the fly
+#                     if np.sum(x) == 0 or np.sum(x) == np.inf or np.sum(x) == -np.inf or np.sum(y) == 0 or np.sum(y) == np.inf or np.sum(y) == -np.inf:
+#                         x = (np.array(self.a[imn][self.trail[0]][1]) / 255).T  # read dataset on the fly
+#                         x = np.rollaxis(x, 1, 0)
+#                         y = np.array(self.a[lbn][self.trail[0]][1])  # read dataset on the fly
+#                 except:
+#                     x = (np.array(self.a[imn][self.trail[0]][1]) / 255).T  # read dataset on the fly
+#                     x = np.rollaxis(x, 1, 0)
+#                     y = np.array(self.a[lbn][self.trail[0]][1])  # read dataset on the fly
 
-                X.append(x)
-                Y.append(y)
-                i += 1
+#                 X.append(x)
+#                 Y.append(y)
+# #                 i += 1
 
-            X = np.asarray(X)
-            Y = np.asarray(Y)
-            return [X, Y], [X, Y]
+#             X = np.asarray(X)
+#             Y = np.asarray(Y)
+#             return [X, Y], [X, Y]
