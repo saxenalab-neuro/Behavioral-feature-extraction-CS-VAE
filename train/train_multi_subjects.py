@@ -1,9 +1,9 @@
-import loss
+import train.loss as loss
 import tensorflow as tf
 tf.compat.v1.disable_eager_execution()
 tf.random.set_seed(33)
-import data_generator
-import model
+import train.data_generator as data_generator 
+import train.model as model
 import h5py
 from tensorflow.keras import backend as K
 # from tensorflow import keras

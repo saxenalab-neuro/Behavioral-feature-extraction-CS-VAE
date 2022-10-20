@@ -9,7 +9,7 @@ import math
 from tensorflow.keras.layers import Input, Dense, Conv2D, multiply, Lambda, Add, Concatenate, Multiply, Conv2DTranspose, \
     Layer, Reshape, ZeroPadding2D, Flatten, MaxPooling2D, UpSampling2D, BatchNormalization, LeakyReLU
 from tensorflow.keras.models import Sequential, Model
-import loss
+import train.loss as loss
 
 class Encoder(Layer):
     def __init__(self, latent_dim=9, bac=2,sdim=5, udim=2,name="encoder", **kwargs):
