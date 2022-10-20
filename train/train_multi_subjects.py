@@ -87,7 +87,7 @@ def train():
     term=tf.keras.callbacks.TerminateOnNaN()
     
 
-    history1 =allmodel.fit( data_generator.DataGenerator(hdf5file=hdf5_file,image_name=image_name, label_name=label_name,batch_size=batch_size, if_train=True),validation_data=data_generator.DataGenerator(hdf5file=hdf5_file, image_name=image_name, label_name=label_name,batch_size=batch_size, if_train=False),
+    history1 =allmodel.fit( data_generator.DataGenerator(hdf5file=hdf5_file,image_name=image_name, dim=(img_x,img_y), n_channels=img_z,n_labs=sdim,label_name=label_name,batch_size=batch_size, shuffle=True),validation_data=data_generator.DataGenerator(hdf5file=hdf5_file, image_name=image_name, dim=(img_x,img_y), n_channels=img_z,n_labs=sdim,label_name=label_name,batch_size=batch_size, shuffle=True),
                             epochs=epoch_num,validation_steps=np.ceil(length/batch_size-1),
                            verbose=1, steps_per_epoch=np.ceil(length/batch_size-1),
                            callbacks=[term,callbacks])

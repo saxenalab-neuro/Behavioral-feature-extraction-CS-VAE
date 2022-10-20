@@ -7,16 +7,21 @@ import random
 from tensorflow.keras.utils import Sequence
 
 class DataGenerator(Sequence):
-    def __init__(self,hdf5file='h.hdf5',image_name= "images_36", label_name= "labels_36",batch_size=256, if_train=True, **kwargs):
+    def __init__(self,hdf5file='h.hdf5',image_name= ["images_36"], label_name= ["labels_36"],dim=(128,128), n_channels=2,n_labs=5,batch_size=256, shuffle=True, **kwargs):
         self.image_name = image_name
         self.label_name = label_name
+        self.dim = dim
+        self.n_channels = n_channels
+        self.n_labs=n_labs
         self.a=h5py.File(hdf5file, 'r')
         self.name = list(self.a.keys())
         self.i1 = self.a[self.name[1]]
         self.trail = list(self.i1.keys())
         self.batch_size=batch_size
-        self.if_train = if_train
-    def _get_shuffle(self):
+        self.shuffle = shuffle
+        self.on_epoch_end()
+       
+    def __get_shuffle(self):
         va = {i: [] for i in range(len(self.image_name))}
         num_sub=len(self.image_name)
         trial_len=len(self.i1[self.trail[0]])
@@ -66,19 +71,38 @@ class DataGenerator(Sequence):
         return idx
 
     def __len__(self):
-        return int(len(self._get_shuffle()) / self.batch_size)
+        return int(np.floor(len(self.__get_shuffle()) / self.batch_size))
+    
+    def on_epoch_end(self):
+        'Updates indexes after each epoch'
+        self.indexes = np.arange(len(self.__get_shuffle()))
+        if self.shuffle == True:
+            np.random.shuffle(self.indexes)
+            
+    
+    def __getitem__(self, index):
+        'Generate one batch of data'
+        # Generate indexes of the batch
+        indexes = self.indexes[index*self.batch_size:(index+1)*self.batch_size]
 
-    def __getitem__(self, idx):
-#         if self.if_train:
-        end = min(len(self._get_shuffle()), (idx + 1)*self.batch_size)
-        A=self._get_shuffle()[idx*self.batch_size:end]
+        # Find list of IDs
+        list_IDs_temp = [self.__get_shuffle()[k] for k in indexes]
 
+        # Generate data
+        X, Y = self.__data_generation(list_IDs_temp)
 
-        X = []
-        Y = []
-        for b in range(self.batch_size):
+        return [X,Y],[X,Y]
+    
+    def __data_generation(self, list_IDs_temp):
+        'Generates data containing batch_size samples'
+        # Initialization
+        X = np.empty((self.batch_size, *self.dim, self.n_channels))
+        Y = np.empty((self.batch_size, self.n_labs))
 
-            alll = A[b]
+        # Generate data
+        for i, alll in enumerate(list_IDs_temp):
+            # Store sample
+
             if alll[0] == 0:
                 imn = self.image_name[0]
                 lbn = self.label_name[0]
@@ -92,7 +116,6 @@ class DataGenerator(Sequence):
             else:
                 imn = self.image_name[3]
                 lbn = self.label_name[3]
-
             try:
                 x = (np.array(self.a[imn][alll[1]][alll[2]]) / 255).T  # read dataset on the fly
                 x = np.rollaxis(x, 1, 0)
@@ -105,58 +128,64 @@ class DataGenerator(Sequence):
                 x = (np.array(self.a[imn][self.trail[0]][1]) / 255).T  # read dataset on the fly
                 x = np.rollaxis(x, 1, 0)
                 y = np.array(self.a[lbn][self.trail[0]][1])  # read dataset on the fly
+                
+                
+            X[i] = x
 
-            X.append(x)
-            Y.append(y)
-#                 i += 1
+            # Store class
+            Y[i] =y
 
-        X = np.asarray(X)
-        Y = np.asarray(Y)
-        yield [X, Y], [X, Y]
-        
-#         else:
-#             VI=random.shuffle(self._get_shuffle())
-            
-#             end = min(len(VI), (idx + 1)*self.batch_size)
-#             A=VI[idx*self.batch_size:end]
+        return X,Y
 
-        
-#             X = []
-#             Y = []
-#             for b in range(self.batch_size):
+# class DataGenerator(keras.utils.Sequence):
+#     'Generates data for Keras'
+#     def __init__(self, list_IDs, labels, batch_size=32, dim=(32,32,32), n_channels=1,
+#                  n_classes=10, shuffle=True):
+#         'Initialization'
+#         self.dim = dim
+#         self.batch_size = batch_size
+#         self.labels = labels
+#         self.list_IDs = list_IDs
+#         self.n_channels = n_channels
+#         self.n_classes = n_classes
+#         self.shuffle = shuffle
+#         self.on_epoch_end()
 
-#                 alll = A[b]
-#                 if alll[0] == 0:
-#                     imn = self.image_name[0]
-#                     lbn = self.label_name[0]
+#     def __len__(self):
+#         'Denotes the number of batches per epoch'
+#         return int(np.floor(len(self.list_IDs) / self.batch_size))
 
-#                 elif alll[0] == 1:
-#                     imn = self.image_name[1]
-#                     lbn = self.label_name[1]
-#                 elif alll[0] == 2:
-#                     imn = self.image_name[2]
-#                     lbn = self.label_name[2]
-#                 else:
-#                     imn = self.image_name[3]
-#                     lbn = self.label_name[3]
+#     def __getitem__(self, index):
+#         'Generate one batch of data'
+#         # Generate indexes of the batch
+#         indexes = self.indexes[index*self.batch_size:(index+1)*self.batch_size]
 
-#                 try:
-#                     x = (np.array(self.a[imn][alll[1]][alll[2]]) / 255).T  # read dataset on the fly
-#                     x = np.rollaxis(x, 1, 0)
-#                     y = np.array(self.a[lbn][alll[1]][alll[2]])  # read dataset on the fly
-#                     if np.sum(x) == 0 or np.sum(x) == np.inf or np.sum(x) == -np.inf or np.sum(y) == 0 or np.sum(y) == np.inf or np.sum(y) == -np.inf:
-#                         x = (np.array(self.a[imn][self.trail[0]][1]) / 255).T  # read dataset on the fly
-#                         x = np.rollaxis(x, 1, 0)
-#                         y = np.array(self.a[lbn][self.trail[0]][1])  # read dataset on the fly
-#                 except:
-#                     x = (np.array(self.a[imn][self.trail[0]][1]) / 255).T  # read dataset on the fly
-#                     x = np.rollaxis(x, 1, 0)
-#                     y = np.array(self.a[lbn][self.trail[0]][1])  # read dataset on the fly
+#         # Find list of IDs
+#         list_IDs_temp = [self.list_IDs[k] for k in indexes]
 
-#                 X.append(x)
-#                 Y.append(y)
-# #                 i += 1
+#         # Generate data
+#         X, y = self.__data_generation(list_IDs_temp)
 
-#             X = np.asarray(X)
-#             Y = np.asarray(Y)
-#             return [X, Y], [X, Y]
+#         return X, y
+
+#     def on_epoch_end(self):
+#         'Updates indexes after each epoch'
+#         self.indexes = np.arange(len(self.list_IDs))
+#         if self.shuffle == True:
+#             np.random.shuffle(self.indexes)
+
+#     def __data_generation(self, list_IDs_temp):
+#         'Generates data containing batch_size samples' # X : (n_samples, *dim, n_channels)
+#         # Initialization
+#         X = np.empty((self.batch_size, *self.dim, self.n_channels))
+#         y = np.empty((self.batch_size), dtype=int)
+
+#         # Generate data
+#         for i, ID in enumerate(list_IDs_temp):
+#             # Store sample
+#             X[i,] = np.load('data/' + ID + '.npy')
+
+#             # Store class
+#             y[i] = self.labels[ID]
+
+#         return X, keras.utils.to_categorical(y, num_classes=self.n_classes)
