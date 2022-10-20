@@ -22,7 +22,7 @@ import json
 gpus = tf.config.list_physical_devices('GPU')
 def train():
     #####read parameter file########
-    json_path = 'parameter_init.json'
+    json_path = 'train/parameter_init.json'
 
     with open(json_path, "r") as f:
         param = json.load(f)
@@ -91,7 +91,7 @@ def train():
                             epochs=epoch_num,validation_steps=np.ceil(length/batch_size-1),
                            verbose=1, steps_per_epoch=np.ceil(length/batch_size-1),
                            callbacks=[term,callbacks])
-    allmodel.save_weights('model.h5')
+    allmodel.save_weights('trained_model/model.h5')
 
 
 # Press the green button in the gutter to run the script.
