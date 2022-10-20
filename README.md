@@ -13,7 +13,7 @@ $ pip install -r requirements.txt
 # Edit Json file
 Change the parameters in the 'generate_json.ipynb' script, and generate the corresponding '.json' file
 # Usage
-Go to train/
+In main folder
 ```
 $ python train_multi_subjects.py
 ```
