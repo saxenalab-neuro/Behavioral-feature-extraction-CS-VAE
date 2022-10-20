@@ -6,15 +6,15 @@ Data available at: https://drive.google.com/file/d/1efgnHQ9ZXahn3-Z-boX9awmdq04X
 
 # Installation for Development
 ```
-$ conda env create -n cs-vae
-$ conda activate cs-vae
-$ pip install -r requirements.txt
+conda env create -n cs-vae
+conda activate cs-vae
+pip install -r requirements.txt
 ```
 # Edit Json file
 Change the parameters in the 'generate_json.ipynb' script, and generate the corresponding '.json' file
 # Usage
 In main folder
 ```
-$ python train_multi_subjects.py
+python train_multi_subjects.py
 ```
 or follow the 'instruction.ipynb' 
