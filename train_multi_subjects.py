@@ -149,6 +149,6 @@ def train():
                            callbacks=[term,callbacks])
 
     allmodel.save_weights('trained_model/model.h5')
-
+train()
     
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/

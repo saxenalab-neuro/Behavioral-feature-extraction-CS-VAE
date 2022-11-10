@@ -17,4 +17,5 @@ In main folder
 ```
 python train_multi_subjects.py
 ```
-or follow the 'instruction.ipynb' 
+or follow the 'demo_file(post training).ipynb'
+or start a quick train 'Quick_train.ipynb'
