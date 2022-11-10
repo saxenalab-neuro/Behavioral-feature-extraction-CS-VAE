@@ -59,7 +59,7 @@ class ALLModel(Model):
         allmodel.add_metric(dim_wise_kl_loss, name="dim_wise_kl_loss",aggregation='mean')
         allmodel.add_metric(frame_mse_loss, name="frame_mse_loss",aggregation='mean')
 
-        allmodel.compile(optimizer=optimizer)
+        allmodel.compile(optimizer=optimizer,loss='mse')
         
         return allmodel
     

@@ -218,7 +218,7 @@ class MSE_SUP(Layer):
         L = tf.reduce_mean(L)
 
         self.add_loss(L * alpha, inputs=inputs)
-
+        self.add_metric(L* alpha, name="mse_loss",aggregation='mean')
         return inputs, L * alpha
 
 
@@ -241,6 +241,7 @@ class MSE_UNSUP(Layer):
         L = tf.keras.losses.mse(D, A)
         L = tf.reduce_mean(L)
         self.add_loss(L * 128 * 128 * 2, inputs=inputs)
+        self.add_metric(L* 128 * 128 * 2, name="unmse_loss",aggregation='mean')
 
         return inputs, L * 128 * 128 * 2
 
